@@ -1,9 +1,3 @@
-## SERVICE PARA LOGIN - PROJETO TCC
-
-## Status do Projeto
-Projeto em desenvolvimento
-
-
 # Projeto de Autenticação com Spring Boot
 
 ## Descrição
