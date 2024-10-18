@@ -8,9 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import tcc2.loginservice.login.models.User;
 
 //para o JpaRepository a entidade que ele vai manipular e o tipo do id
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
   UserDetails findByEmail(String email);
-
-  User findUserByEmail(String email);
 
 }

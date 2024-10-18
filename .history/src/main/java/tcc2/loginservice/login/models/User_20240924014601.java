@@ -28,8 +28,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class User implements UserDetails {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private UUID id;
   private String name;
   private String email;
   private String password;

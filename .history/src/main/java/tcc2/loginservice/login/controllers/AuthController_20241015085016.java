@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 
 import tcc2.loginservice.login.dto.LoginRequestDTO;
 import tcc2.loginservice.login.dto.RegisterRequestDTO;
-import tcc2.loginservice.login.dto.ResetPasswordDTO;
 import tcc2.loginservice.login.dto.ResponseDTO;
 import tcc2.loginservice.login.models.User;
 import tcc2.loginservice.login.repositories.UserRepository;
@@ -34,7 +33,7 @@ public class AuthController {
   private TokenService tokenService;
 
   @PostMapping("/login")
-  public ResponseEntity<ResponseDTO> login(@RequestBody @Valid LoginRequestDTO data) {
+  public ResponseEntity login(@RequestBody @Valid LoginRequestDTO data) {
     // Cria o token de autenticação com base nos dados de login e senha
     var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
 
@@ -48,7 +47,7 @@ public class AuthController {
   }
 
   @PostMapping("/register")
-  public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequestDTO body) {
+  public ResponseEntity register(@RequestBody @Valid RegisterRequestDTO body) {
 
     if (this.repository.findByEmail(body.email()) != null)
       return ResponseEntity.badRequest().build();
@@ -62,20 +61,4 @@ public class AuthController {
 
     return ResponseEntity.ok().build();
   }
-
-  @PostMapping("/reset-password")
-  public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
-    // Verifica se o e-mail está registrado
-    User user = repository.findUserByEmail(request.email());
-    if (user == null) {
-      return ResponseEntity.badRequest().build(); // Retorna 400 se o e-mail não for encontrado
-    }
-    String encryptedPassword = new BCryptPasswordEncoder().encode(request.newsenha());
-    user.setPassword(encryptedPassword);
-    repository.save(user); // Salva as alterações no banco de dados
-
-    return ResponseEntity.ok().build();
-
-  }
-
 }

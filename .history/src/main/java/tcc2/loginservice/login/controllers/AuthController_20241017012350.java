@@ -64,18 +64,27 @@ public class AuthController {
   }
 
   @PostMapping("/reset-password")
-  public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
+  public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
     // Verifica se o e-mail está registrado
     User user = repository.findUserByEmail(request.email());
     if (user == null) {
       return ResponseEntity.badRequest().build(); // Retorna 400 se o e-mail não for encontrado
     }
-    String encryptedPassword = new BCryptPasswordEncoder().encode(request.newsenha());
+
+    // Criptografa a nova senha
+    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    String encryptedPassword = passwordEncoder.encode(request.newsenha());
     user.setPassword(encryptedPassword);
     repository.save(user); // Salva as alterações no banco de dados
 
-    return ResponseEntity.ok().build();
+    // Testa se a senha original corresponde ao hash
+    boolean passwordMatches = passwordEncoder.matches(request.newsenha(), encryptedPassword);
 
+    if (passwordMatches) {
+      return ResponseEntity.ok("A nova senha foi armazenada corretamente e corresponde.");
+    } else {
+      return ResponseEntity.badRequest().body("A nova senha não corresponde ao hash armazenado.");
+    }
   }
 
 }

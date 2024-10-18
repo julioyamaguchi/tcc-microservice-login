@@ -63,7 +63,7 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/reset-password")
+  @PostMapping("/resset-password")
   public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
     // Verifica se o e-mail está registrado
     User user = repository.findUserByEmail(request.email());

@@ -40,8 +40,7 @@ public class TokenService {
     }
   }
 
-  // validação do token quando o usuario enviar, se for valido retorna o email do
-  // cliete para qm chamou
+  // validação do token quando o usuario enviar
   public String validateToken(String token) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);

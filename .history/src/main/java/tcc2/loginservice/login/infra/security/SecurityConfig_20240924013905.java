@@ -31,7 +31,6 @@ public class SecurityConfig {
                                                                          // requisição
             .requestMatchers(HttpMethod.POST, "/auth/register").permitAll() // endpoint aberto para qualquer um fazer
                                                                             // requisição
-            .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
             .anyRequest().authenticated())
         // filtro que verifica antes o token do usuario e depois passa para as
         // validações acima

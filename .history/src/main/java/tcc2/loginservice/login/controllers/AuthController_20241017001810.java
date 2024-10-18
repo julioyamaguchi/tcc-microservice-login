@@ -63,18 +63,9 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/reset-password")
+  @PostMapping("/resset-password")
   public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
-    // Verifica se o e-mail está registrado
-    User user = repository.findUserByEmail(request.email());
-    if (user == null) {
-      return ResponseEntity.badRequest().build(); // Retorna 400 se o e-mail não for encontrado
-    }
-    String encryptedPassword = new BCryptPasswordEncoder().encode(request.newsenha());
-    user.setPassword(encryptedPassword);
-    repository.save(user); // Salva as alterações no banco de dados
-
-    return ResponseEntity.ok().build();
+    User user = repository.findByEmail(request.email());
 
   }
 
