@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import tcc2.loginservice.login.dto.LoginRequestDTO;
-import tcc2.loginservice.login.dto.RefreshTokenRequestDTO;
 import tcc2.loginservice.login.dto.RegisterRequestDTO;
 import tcc2.loginservice.login.dto.ResponseDTO;
 import tcc2.loginservice.login.models.User;
