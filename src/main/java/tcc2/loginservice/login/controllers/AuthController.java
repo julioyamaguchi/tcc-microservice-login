@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import tcc2.loginservice.login.dto.LoginRequestDTO;
+import tcc2.loginservice.login.dto.RefreshTokenRequestDTO;
 import tcc2.loginservice.login.dto.RegisterRequestDTO;
 import tcc2.loginservice.login.dto.ResponseDTO;
 import tcc2.loginservice.login.models.User;
@@ -41,9 +42,10 @@ public class AuthController {
     var auth = this.authenticationManager.authenticate(usernamePassword);
 
     var token = tokenService.generateToken((User) auth.getPrincipal());
+    var refreshToken = tokenService.generateRefreshToken((User) auth.getPrincipal());
 
     // Retorna o token gerado no corpo da resposta
-    return ResponseEntity.ok(new ResponseDTO(token));
+    return ResponseEntity.ok(new ResponseDTO(token, refreshToken));
   }
 
   @PostMapping("/register")
@@ -61,4 +63,22 @@ public class AuthController {
 
     return ResponseEntity.ok().build();
   }
+
+  @PostMapping("/refresh-token")
+  public ResponseEntity refreshToken(@RequestBody String refreshToken) {
+    // Valida o refresh token
+    String email = tokenService.validateToken(refreshToken);
+
+    if (email == null) {
+      return ResponseEntity.status(403).body("Invalid refresh token");
+    }
+
+    // Gera novos tokens
+    User user = (User) repository.findByEmail(email);
+    String newToken = tokenService.generateToken(user);
+    String newRefreshToken = tokenService.generateRefreshToken(user);
+
+    return ResponseEntity.ok(new ResponseDTO(newToken, newRefreshToken));
+  }
+
 }
