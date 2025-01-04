@@ -6,10 +6,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import tcc2.loginservice.login.infra.security.TokenService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
@@ -21,7 +22,7 @@ import tcc2.loginservice.login.models.User;
 import tcc2.loginservice.login.repositories.UserRepository;
 
 @RestController
-@RequestMapping("auth")
+@RequestMapping("api/auth")
 public class AuthController {
 
   @Autowired
@@ -42,9 +43,10 @@ public class AuthController {
     var auth = this.authenticationManager.authenticate(usernamePassword);
 
     var token = tokenService.generateToken((User) auth.getPrincipal());
+    var refreshToken = tokenService.generateRefreshToken((User) auth.getPrincipal());
 
     // Retorna o token gerado no corpo da resposta
-    return ResponseEntity.ok(new ResponseDTO(token));
+    return ResponseEntity.ok(new ResponseDTO(token, refreshToken));
   }
 
   @PostMapping("/register")
@@ -75,7 +77,22 @@ public class AuthController {
     repository.save(user); // Salva as alterações no banco de dados
 
     return ResponseEntity.ok().build();
-
   }
 
+  @PostMapping("/refresh-token")
+  public ResponseEntity refreshToken(@RequestBody String refreshToken) {
+    // Valida o refresh token
+    String email = tokenService.validateToken(refreshToken);
+
+    if (email == null) {
+      return ResponseEntity.status(403).body("Invalid refresh token");
+    }
+
+    // Gera novos tokens
+    User user = (User) repository.findByEmail(email);
+    String newToken = tokenService.generateToken(user);
+    String newRefreshToken = tokenService.generateRefreshToken(user);
+
+    return ResponseEntity.ok(new ResponseDTO(newToken, newRefreshToken));
+  }
 }
