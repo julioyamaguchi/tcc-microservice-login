@@ -19,6 +19,7 @@ import tcc2.loginservice.login.dto.RegisterRequestDTO;
 import tcc2.loginservice.login.dto.ResetPasswordDTO;
 import tcc2.loginservice.login.dto.ResponseDTO;
 import tcc2.loginservice.login.models.User;
+import tcc2.loginservice.login.models.UserRole;
 import tcc2.loginservice.login.repositories.UserRepository;
 
 @RestController
@@ -50,19 +51,26 @@ public class AuthController {
   }
 
   @PostMapping("/register")
-  public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequestDTO body) {
+  public ResponseEntity<?> register(@RequestBody @Valid RegisterRequestDTO body) {
+    if (repository.findByEmail(body.email()) != null) {
+      return ResponseEntity.badRequest().body("E-mail já cadastrado.");
+    }
 
-    if (this.repository.findByEmail(body.email()) != null)
-      return ResponseEntity.badRequest().build();
+    try {
+      // Converte o role recebido para minúsculas antes de validar
+      UserRole role = UserRole.valueOf(body.role().name().toUpperCase());
 
-    // criptografa a senha
-    String encryptedPassword = new BCryptPasswordEncoder().encode(body.password());
-    // gera o novo user
-    User newUser = new User(body.email(), encryptedPassword, body.role(), body.name());
+      // Criptografa a senha
+      String encryptedPassword = new BCryptPasswordEncoder().encode(body.password());
 
-    this.repository.save(newUser);
+      // Cria o novo usuário
+      User newUser = new User(body.email(), encryptedPassword, role, body.name());
+      repository.save(newUser);
 
-    return ResponseEntity.ok().build();
+      return ResponseEntity.ok().body("Usuário registrado com sucesso.");
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body("Tipo de usuário inválido. Use: 'admin', 'aluno' ou 'professor'.");
+    }
   }
 
   @PostMapping("/reset-password")
