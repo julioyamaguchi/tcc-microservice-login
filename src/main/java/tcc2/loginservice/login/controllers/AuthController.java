@@ -45,9 +45,10 @@ public class AuthController {
 
     var token = tokenService.generateToken((User) auth.getPrincipal());
     var refreshToken = tokenService.generateRefreshToken((User) auth.getPrincipal());
+    User user = (User) repository.findByEmail(data.email());
 
     // Retorna o token gerado no corpo da resposta
-    return ResponseEntity.ok(new ResponseDTO(token, refreshToken));
+    return ResponseEntity.ok(new ResponseDTO(token, refreshToken, user));
   }
 
   @PostMapping("/register")
@@ -101,6 +102,6 @@ public class AuthController {
     String newToken = tokenService.generateToken(user);
     String newRefreshToken = tokenService.generateRefreshToken(user);
 
-    return ResponseEntity.ok(new ResponseDTO(newToken, newRefreshToken));
+    return ResponseEntity.ok(new ResponseDTO(newToken, newRefreshToken, user));
   }
 }
