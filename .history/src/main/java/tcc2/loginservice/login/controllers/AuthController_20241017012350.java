@@ -6,11 +6,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import tcc2.loginservice.login.infra.security.TokenService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
@@ -19,11 +18,10 @@ import tcc2.loginservice.login.dto.RegisterRequestDTO;
 import tcc2.loginservice.login.dto.ResetPasswordDTO;
 import tcc2.loginservice.login.dto.ResponseDTO;
 import tcc2.loginservice.login.models.User;
-import tcc2.loginservice.login.models.UserRole;
 import tcc2.loginservice.login.repositories.UserRepository;
 
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("auth")
 public class AuthController {
 
   @Autowired
@@ -44,64 +42,49 @@ public class AuthController {
     var auth = this.authenticationManager.authenticate(usernamePassword);
 
     var token = tokenService.generateToken((User) auth.getPrincipal());
-    var refreshToken = tokenService.generateRefreshToken((User) auth.getPrincipal());
-    User user = (User) repository.findByEmail(data.email());
 
     // Retorna o token gerado no corpo da resposta
-    return ResponseEntity.ok(new ResponseDTO(token, refreshToken, user));
+    return ResponseEntity.ok(new ResponseDTO(token));
   }
 
   @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestBody @Valid RegisterRequestDTO body) {
-    if (repository.findByEmail(body.email()) != null) {
-      return ResponseEntity.badRequest().body("E-mail já cadastrado.");
-    }
+  public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequestDTO body) {
 
-    try {
-      // Converte o role recebido para minúsculas antes de validar
-      UserRole role = UserRole.valueOf(body.role().name().toUpperCase());
+    if (this.repository.findByEmail(body.email()) != null)
+      return ResponseEntity.badRequest().build();
 
-      // Criptografa a senha
-      String encryptedPassword = new BCryptPasswordEncoder().encode(body.password());
+    // criptografa a senha
+    String encryptedPassword = new BCryptPasswordEncoder().encode(body.password());
+    // gera o novo user
+    User newUser = new User(body.email(), encryptedPassword, body.role(), body.name());
 
-      // Cria o novo usuário
-      User newUser = new User(body.email(), encryptedPassword, role, body.name());
-      repository.save(newUser);
+    this.repository.save(newUser);
 
-      return ResponseEntity.ok().body("Usuário registrado com sucesso.");
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body("Tipo de usuário inválido. Use: 'admin', 'aluno' ou 'professor'.");
-    }
+    return ResponseEntity.ok().build();
   }
 
   @PostMapping("/reset-password")
-  public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
+  public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordDTO request) {
     // Verifica se o e-mail está registrado
     User user = repository.findUserByEmail(request.email());
     if (user == null) {
       return ResponseEntity.badRequest().build(); // Retorna 400 se o e-mail não for encontrado
     }
-    String encryptedPassword = new BCryptPasswordEncoder().encode(request.newsenha());
+
+    // Criptografa a nova senha
+    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    String encryptedPassword = passwordEncoder.encode(request.newsenha());
     user.setPassword(encryptedPassword);
     repository.save(user); // Salva as alterações no banco de dados
 
-    return ResponseEntity.ok().build();
-  }
+    // Testa se a senha original corresponde ao hash
+    boolean passwordMatches = passwordEncoder.matches(request.newsenha(), encryptedPassword);
 
-  @PostMapping("/refresh-token")
-  public ResponseEntity refreshToken(@RequestBody String refreshToken) {
-    // Valida o refresh token
-    String email = tokenService.validateToken(refreshToken);
-
-    if (email == null) {
-      return ResponseEntity.status(403).body("Invalid refresh token");
+    if (passwordMatches) {
+      return ResponseEntity.ok("A nova senha foi armazenada corretamente e corresponde.");
+    } else {
+      return ResponseEntity.badRequest().body("A nova senha não corresponde ao hash armazenado.");
     }
-
-    // Gera novos tokens
-    User user = (User) repository.findByEmail(email);
-    String newToken = tokenService.generateToken(user);
-    String newRefreshToken = tokenService.generateRefreshToken(user);
-
-    return ResponseEntity.ok(new ResponseDTO(newToken, newRefreshToken, user));
   }
+
 }

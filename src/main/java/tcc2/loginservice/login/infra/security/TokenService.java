@@ -17,30 +17,32 @@ import tcc2.loginservice.login.models.User;
 @Service
 public class TokenService {
 
-  // Indica que o valor esta sendo recuperado la do arquivo application.properties
   @Value("${api.security.token.secret}")
   private String secret;
 
-  // metodo de criação de token
+  // Gera o token de acesso
   public String generateToken(User user) {
-    try {
-      Algorithm algorithm = Algorithm.HMAC256(secret);// secret é um parametro passado para o algoritmo de hash
-                                                      // incrementar uma segurança a mais, essa secret é unica para
-                                                      // nossa aplicação, para conseguir descriptografar a menagem
-                                                      // precisamos da secret.
+    return createToken(user, 2); // Expiração de 2 horas para o token de acesso
+  }
 
-      String token = JWT.create()
-          .withIssuer("login-auth-api")// emissor do token (nome da aplicação)
-          .withSubject(user.getEmail()) // usuario que recebe o token
-          .withExpiresAt(this.genereteExpirationDate()) // tempo de expiração
+  // Gera o refresh token
+  public String generateRefreshToken(User user) {
+    return createToken(user, 24); // Expiração mais longa, ex.: 24 horas para o refresh token
+  }
+
+  private String createToken(User user, int hoursToExpire) {
+    try {
+      Algorithm algorithm = Algorithm.HMAC256(secret);
+      return JWT.create()
+          .withIssuer("login-auth-api")
+          .withSubject(user.getEmail())
+          .withExpiresAt(LocalDateTime.now().plusHours(hoursToExpire).toInstant(ZoneOffset.of("-03:00")))
           .sign(algorithm);
-      return token;
     } catch (JWTCreationException exception) {
-      throw new RuntimeException("Error while authenticating", exception);
+      throw new RuntimeException("Error while generating token", exception);
     }
   }
 
-  // validação do token quando o usuario enviar
   public String validateToken(String token) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -54,8 +56,4 @@ public class TokenService {
     }
   }
 
-  // gera um tempo de expiração para o token
-  private Instant genereteExpirationDate() {
-    return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
-  }
 }

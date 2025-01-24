@@ -27,12 +27,11 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll() // endpoint aberto para qualquer um fazer
-            // requisição
-            .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll() // endpoint aberto para qualquer um
-            // fazer
-            // requisição
-            .requestMatchers(HttpMethod.GET, "/api/users/students").permitAll() // Permite acesso público aos alunos
+            .requestMatchers(HttpMethod.POST, "/auth/login").permitAll() // endpoint aberto para qualquer um fazer
+                                                                         // requisição
+            .requestMatchers(HttpMethod.POST, "/auth/register").permitAll() // endpoint aberto para qualquer um fazer
+                                                                            // requisição
+            .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
             .anyRequest().authenticated())
         // filtro que verifica antes o token do usuario e depois passa para as
         // validações acima

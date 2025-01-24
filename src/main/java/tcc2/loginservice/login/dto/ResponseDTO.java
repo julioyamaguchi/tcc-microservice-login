@@ -1,5 +1,7 @@
 package tcc2.loginservice.login.dto;
 
-public record ResponseDTO(String token) {
+import tcc2.loginservice.login.models.User;
+
+public record ResponseDTO(String token, String refreshToken, User user) {
 
 }
