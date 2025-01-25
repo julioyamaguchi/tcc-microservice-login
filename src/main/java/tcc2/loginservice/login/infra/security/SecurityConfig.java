@@ -32,7 +32,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll() // endpoint aberto para qualquer um
             // fazer
             // requisição
-            .requestMatchers(HttpMethod.GET, "/api/users/students").permitAll() // Permite acesso público aos alunos
+            .requestMatchers(HttpMethod.GET, "/api/auth/users/students").authenticated()
             .anyRequest().authenticated())
         // filtro que verifica antes o token do usuario e depois passa para as
         // validações acima
