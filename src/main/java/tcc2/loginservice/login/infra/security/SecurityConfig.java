@@ -33,6 +33,13 @@ public class SecurityConfig {
             // fazer
             // requisição
             .requestMatchers(HttpMethod.GET, "/api/users/students").permitAll() // Permite acesso público aos alunos
+
+            .requestMatchers(HttpMethod.GET, "/api/auth/listarTodosUsuarios").permitAll() //permite que possa ser realizado a listagem pelo adm
+
+            .requestMatchers(HttpMethod.PUT, "/api/auth/atualizarUsuario/**").permitAll() //permite que possa ser realizado a atualização pelo adm
+
+            .requestMatchers(HttpMethod.DELETE, "/api/auth/deletarUsuario/**").permitAll() //permite que possa ser realizado o delete pelo adm
+
             .anyRequest().authenticated())
         // filtro que verifica antes o token do usuario e depois passa para as
         // validações acima

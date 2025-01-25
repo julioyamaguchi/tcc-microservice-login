@@ -1,13 +1,18 @@
 package tcc2.loginservice.login.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import tcc2.loginservice.login.infra.security.TokenService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,6 +26,7 @@ import tcc2.loginservice.login.dto.ResponseDTO;
 import tcc2.loginservice.login.models.User;
 import tcc2.loginservice.login.models.UserRole;
 import tcc2.loginservice.login.repositories.UserRepository;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/auth")
@@ -45,9 +51,10 @@ public class AuthController {
 
     var token = tokenService.generateToken((User) auth.getPrincipal());
     var refreshToken = tokenService.generateRefreshToken((User) auth.getPrincipal());
+    User user = (User) repository.findByEmail(data.email());
 
     // Retorna o token gerado no corpo da resposta
-    return ResponseEntity.ok(new ResponseDTO(token, refreshToken));
+    return ResponseEntity.ok(new ResponseDTO(token, refreshToken, user));
   }
 
   @PostMapping("/register")
@@ -101,6 +108,33 @@ public class AuthController {
     String newToken = tokenService.generateToken(user);
     String newRefreshToken = tokenService.generateRefreshToken(user);
 
-    return ResponseEntity.ok(new ResponseDTO(newToken, newRefreshToken));
+    return ResponseEntity.ok(new ResponseDTO(newToken, newRefreshToken, user));
   }
+
+  @GetMapping("/listarTodosUsuarios")
+  public ResponseEntity<List<User>> listarUsuarios() {
+      List<User> users = repository.findAll(); // Busca todos os usuários
+      return ResponseEntity.ok(users); // Retorna a lista no corpo da resposta
+  }
+
+  @PutMapping("/atualizarUsuario/{id}")
+  public ResponseEntity<User> atualizarUsuario(@PathVariable Long id, @RequestBody User updatedUser) {
+      return repository.findById(id).map(user -> {
+          user.setName(updatedUser.getName());
+          user.setEmail(updatedUser.getEmail());
+          user.setRole(updatedUser.getRole());
+  
+          repository.save(user); // Salva as alterações no banco de dados
+          return ResponseEntity.ok(user); // Retorna o usuário atualizado
+      }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+  }  
+  
+  @DeleteMapping("/deletarUsuario/{id}")
+  public ResponseEntity<?> deletarUsuario(@PathVariable Long id) {
+      return repository.findById(id).map(user -> {
+          repository.delete(user);
+          return ResponseEntity.ok("Usuário deletado com sucesso.");
+      }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado."));
+  }
+  
 }
