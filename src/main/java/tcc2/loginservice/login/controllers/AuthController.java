@@ -77,7 +77,9 @@ public class AuthController {
   @PostMapping("/register")
   public ResponseEntity<?> register(@RequestBody @Valid RegisterRequestDTO body) {
     if (repository.findByEmail(body.email()) != null) {
-      return ResponseEntity.badRequest().body("E-mail já cadastrado.");
+      // Utiliza o ResponseErrorDTO para padronizar a mensagem de erro
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(new ResponseErrorDTO(HttpStatus.BAD_REQUEST.name(), "E-mail já cadastrado."));
     }
 
     try {
@@ -130,28 +132,28 @@ public class AuthController {
 
   @GetMapping("/listarTodosUsuarios")
   public ResponseEntity<List<User>> listarUsuarios() {
-      List<User> users = repository.findAll(); // Busca todos os usuários
-      return ResponseEntity.ok(users); // Retorna a lista no corpo da resposta
+    List<User> users = repository.findAll(); // Busca todos os usuários
+    return ResponseEntity.ok(users); // Retorna a lista no corpo da resposta
   }
 
   @PutMapping("/atualizarUsuario/{id}")
   public ResponseEntity<User> atualizarUsuario(@PathVariable Long id, @RequestBody User updatedUser) {
-      return repository.findById(id).map(user -> {
-          user.setName(updatedUser.getName());
-          user.setEmail(updatedUser.getEmail());
-          user.setRole(updatedUser.getRole());
-  
-          repository.save(user); // Salva as alterações no banco de dados
-          return ResponseEntity.ok(user); // Retorna o usuário atualizado
-      }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-  }  
-  
+    return repository.findById(id).map(user -> {
+      user.setName(updatedUser.getName());
+      user.setEmail(updatedUser.getEmail());
+      user.setRole(updatedUser.getRole());
+
+      repository.save(user); // Salva as alterações no banco de dados
+      return ResponseEntity.ok(user); // Retorna o usuário atualizado
+    }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+  }
+
   @DeleteMapping("/deletarUsuario/{id}")
   public ResponseEntity<?> deletarUsuario(@PathVariable Long id) {
-      return repository.findById(id).map(user -> {
-          repository.delete(user);
-          return ResponseEntity.ok("Usuário deletado com sucesso.");
-      }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado."));
+    return repository.findById(id).map(user -> {
+      repository.delete(user);
+      return ResponseEntity.ok("Usuário deletado com sucesso.");
+    }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado."));
   }
-  
+
 }
