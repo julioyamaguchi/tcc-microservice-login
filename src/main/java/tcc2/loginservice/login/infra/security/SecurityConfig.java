@@ -27,23 +27,14 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll() // endpoint aberto para qualquer um fazer
-            // requisição
-            .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll() // endpoint aberto para qualquer um
-            // fazer
-            // requisição
-
+            .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/users/students").authenticated()
-
-            .requestMatchers(HttpMethod.GET, "/api/auth/listarTodosUsuarios").permitAll() //permite que possa ser realizado a listagem pelo adm
-
-            .requestMatchers(HttpMethod.PUT, "/api/auth/atualizarUsuario/**").permitAll() //permite que possa ser realizado a atualização pelo adm
-
-            .requestMatchers(HttpMethod.DELETE, "/api/auth/deletarUsuario/**").permitAll() //permite que possa ser realizado o delete pelo adm
-
+            .requestMatchers(HttpMethod.GET, "/api/auth/listarTodosUsuarios").permitAll()
+            .requestMatchers(HttpMethod.PUT, "/api/auth/atualizarUsuario/**").permitAll()
+            .requestMatchers(HttpMethod.DELETE, "/api/auth/deletarUsuario/**").permitAll()
             .anyRequest().authenticated())
-        // filtro que verifica antes o token do usuario e depois passa para as
-        // validações acima
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
