@@ -82,6 +82,13 @@ public class AuthController {
           .body(new ResponseErrorDTO(HttpStatus.BAD_REQUEST.name(), "E-mail já cadastrado."));
     }
 
+    // Verifica se o nome de usuário já está cadastrado (ignora maiúsculas,
+    // minúsculas e espaços)
+    if (repository.findByNameIgnoreCase(body.name().trim()) != null) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(new ResponseErrorDTO(HttpStatus.BAD_REQUEST.name(), "Nome de usuário já cadastrado."));
+    }
+
     try {
       // Converte o role recebido para minúsculas antes de validar
       UserRole role = UserRole.valueOf(body.role().name().toUpperCase());
