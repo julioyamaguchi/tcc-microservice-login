@@ -32,7 +32,8 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll() // endpoint aberto para qualquer um
             // fazer
             // requisição
-            .requestMatchers(HttpMethod.GET, "/api/users/students").permitAll() // Permite acesso público aos alunos
+
+            .requestMatchers(HttpMethod.GET, "/api/auth/users/students").authenticated()
 
             .requestMatchers(HttpMethod.GET, "/api/auth/listarTodosUsuarios").permitAll() //permite que possa ser realizado a listagem pelo adm
 

@@ -22,7 +22,7 @@ import tcc2.loginservice.login.repositories.UserRepository;
 // }
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth/users")
 public class UserController {
 
     @Autowired
@@ -30,6 +30,7 @@ public class UserController {
 
     @GetMapping("/students")
     public ResponseEntity<List<User>> getStudents() {
+        System.out.println("Endpoint /students acessado.");
         // Busca os usuários onde role é ALUNO
         List<User> students = userRepository.findByRole(UserRole.ALUNO);
         return ResponseEntity.ok(students);
