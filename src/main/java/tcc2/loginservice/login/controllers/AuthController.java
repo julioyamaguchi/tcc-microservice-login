@@ -1,8 +1,12 @@
 package tcc2.loginservice.login.controllers;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import tcc2.loginservice.login.infra.security.TokenService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +22,7 @@ import tcc2.loginservice.login.dto.LoginRequestDTO;
 import tcc2.loginservice.login.dto.RegisterRequestDTO;
 import tcc2.loginservice.login.dto.ResetPasswordDTO;
 import tcc2.loginservice.login.dto.ResponseDTO;
+import tcc2.loginservice.login.dto.ResponseErrorDTO;
 import tcc2.loginservice.login.models.User;
 import tcc2.loginservice.login.models.UserRole;
 import tcc2.loginservice.login.repositories.UserRepository;
@@ -36,19 +41,32 @@ public class AuthController {
   private TokenService tokenService;
 
   @PostMapping("/login")
-  public ResponseEntity<ResponseDTO> login(@RequestBody @Valid LoginRequestDTO data) {
-    // Cria o token de autenticação com base nos dados de login e senha
-    var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
+  public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO data) {
 
-    // Usa o authenticationManager para autenticar o usuário
-    var auth = this.authenticationManager.authenticate(usernamePassword);
+    try {
+      User user = (User) repository.findByEmail(data.email());
+      if (user == null) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ResponseErrorDTO(HttpStatus.UNAUTHORIZED.name(), "Email não cadastrado."));
 
-    var token = tokenService.generateToken((User) auth.getPrincipal());
-    var refreshToken = tokenService.generateRefreshToken((User) auth.getPrincipal());
-    User user = (User) repository.findByEmail(data.email());
+      }
 
-    // Retorna o token gerado no corpo da resposta
-    return ResponseEntity.ok(new ResponseDTO(token, refreshToken, user));
+      // Cria o token de autenticação com base nos dados de login e senha
+      var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
+
+      // Usa o authenticationManager para autenticar o usuário
+      var auth = this.authenticationManager.authenticate(usernamePassword);
+
+      var token = tokenService.generateToken((User) auth.getPrincipal());
+      var refreshToken = tokenService.generateRefreshToken((User) auth.getPrincipal());
+
+      // Retorna o token gerado no corpo da resposta
+      return ResponseEntity.ok(new ResponseDTO(token, refreshToken, user));
+
+    } catch (BadCredentialsException ex) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(new ResponseErrorDTO(HttpStatus.UNAUTHORIZED.name(), "Email ou senha incorretos."));
+    }
   }
 
   @PostMapping("/register")
