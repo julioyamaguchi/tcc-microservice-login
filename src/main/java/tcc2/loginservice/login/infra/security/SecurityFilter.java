@@ -46,6 +46,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
   private String recoverToken(HttpServletRequest request) {
     var authHeader = request.getHeader("Authorization");
+    System.out.println("Auth Header: " + authHeader); // Log para verificar o cabeçalho
 
     if (authHeader == null)
       return null;

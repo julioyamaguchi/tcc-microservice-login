@@ -31,9 +31,12 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/users/students").authenticated()
-            .requestMatchers(HttpMethod.GET, "/api/auth/listarTodosUsuarios").permitAll()
-            .requestMatchers(HttpMethod.PUT, "/api/auth/atualizarUsuario/**").permitAll()
-            .requestMatchers(HttpMethod.DELETE, "/api/auth/deletarUsuario/**").permitAll()
+
+            .requestMatchers(HttpMethod.GET, "/api/auth/users").authenticated() //retrona todos os usuários
+            .requestMatchers(HttpMethod.GET, "/api/auth/users/students").authenticated() //retorna todos os alunos
+            .requestMatchers(HttpMethod.PUT, "/api/auth/users/**").authenticated() //atualiza um usuário
+            .requestMatchers(HttpMethod.DELETE, "/api/auth/users/**").authenticated() //deleta um usuário
+
             .anyRequest().authenticated())
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
