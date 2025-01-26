@@ -129,31 +129,4 @@ public class AuthController {
 
     return ResponseEntity.ok(new ResponseDTO(newToken, newRefreshToken, user));
   }
-
-  @GetMapping("/listarTodosUsuarios")
-  public ResponseEntity<List<User>> listarUsuarios() {
-    List<User> users = repository.findAll(); // Busca todos os usuários
-    return ResponseEntity.ok(users); // Retorna a lista no corpo da resposta
-  }
-
-  @PutMapping("/atualizarUsuario/{id}")
-  public ResponseEntity<User> atualizarUsuario(@PathVariable Long id, @RequestBody User updatedUser) {
-    return repository.findById(id).map(user -> {
-      user.setName(updatedUser.getName());
-      user.setEmail(updatedUser.getEmail());
-      user.setRole(updatedUser.getRole());
-
-      repository.save(user); // Salva as alterações no banco de dados
-      return ResponseEntity.ok(user); // Retorna o usuário atualizado
-    }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-  }
-
-  @DeleteMapping("/deletarUsuario/{id}")
-  public ResponseEntity<?> deletarUsuario(@PathVariable Long id) {
-    return repository.findById(id).map(user -> {
-      repository.delete(user);
-      return ResponseEntity.ok("Usuário deletado com sucesso.");
-    }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado."));
-  }
-
 }
