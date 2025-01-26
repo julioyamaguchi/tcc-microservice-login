@@ -77,7 +77,9 @@ public class AuthController {
   @PostMapping("/register")
   public ResponseEntity<?> register(@RequestBody @Valid RegisterRequestDTO body) {
     if (repository.findByEmail(body.email()) != null) {
-      return ResponseEntity.badRequest().body("E-mail já cadastrado.");
+      // Utiliza o ResponseErrorDTO para padronizar a mensagem de erro
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(new ResponseErrorDTO(HttpStatus.BAD_REQUEST.name(), "E-mail já cadastrado."));
     }
 
     try {
