@@ -29,16 +29,23 @@ public class SecurityFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
+    // Ignorar endpoints públicos
+    String requestURI = request.getRequestURI();
+    if (requestURI.equals("/auth/forgot-password") || requestURI.equals("/auth/register")
+        || requestURI.equals("/auth/login")) {
+      filterChain.doFilter(request, response);
+      return; // Ignora o filtro e permite a requisição continuar
+    }
+
+    // Recupera o token do cabeçalho Authorization
     var token = this.recoverToken(request);
 
     if (token != null) {
       var email = tokenService.validateToken(token);
       UserDetails user = userRepository.findByEmail(email);
 
-      // gera a autenticação do usuario para p spring, passando os dados do user e as
-      // roles que ele tem permissão.
+      // Gera a autenticação do usuário para o Spring
       var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-      // Agora o sprig security sabe as permissões
       SecurityContextHolder.getContext().setAuthentication(authentication);
     }
     filterChain.doFilter(request, response);
