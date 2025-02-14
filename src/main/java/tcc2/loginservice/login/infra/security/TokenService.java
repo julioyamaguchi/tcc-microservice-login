@@ -43,6 +43,23 @@ public class TokenService {
     }
   }
 
+  // Novo método para gerar um token baseado em um email
+  public String generateTokenEmail(String email) {
+    try {
+      Algorithm algorithm = Algorithm.HMAC256(secret);
+
+      return JWT.create()
+          .withIssuer("login-auth-api")
+          .withSubject(email)
+          .withExpiresAt(this.genereteExpirationDate())
+          .sign(algorithm);
+    } catch (JWTCreationException exception) {
+      throw new RuntimeException("Error while generating token", exception);
+    }
+  }
+
+  // validação do token quando o usuario enviar, se for valido retorna o email do
+  // cliete para qm chamou
   public String validateToken(String token) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -54,6 +71,11 @@ public class TokenService {
     } catch (JWTVerificationException exception) {
       return null;
     }
+  }
+
+  // gera um tempo de expiração para o token
+  private Instant genereteExpirationDate() {
+    return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
   }
 
 }
