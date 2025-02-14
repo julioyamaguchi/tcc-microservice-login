@@ -1,6 +1,7 @@
 package tcc2.loginservice.login.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,19 @@ public class UserController {
         List<User> users = userRepository.findAll();
         return ResponseEntity.ok(users);
     }
+
+    // GET /api/auth/users/{id} - Retorna um usuário específico pelo ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(optionalUser.isPresent()){
+             return ResponseEntity.ok(optionalUser.get());
+        } else {
+             return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                     .body("Usuário não encontrado.");
+        }
+    }
+    
 
     // PUT /api/auth/users/{id} - Atualiza um usuário específico
     @PutMapping("/{id}")
