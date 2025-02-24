@@ -3,6 +3,7 @@ package tcc2.loginservice.login.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import tcc2.loginservice.login.models.User;
 import tcc2.loginservice.login.models.UserRole;
 import tcc2.loginservice.login.repositories.UserRepository;
+import org.springframework.web.bind.annotation.RequestParam;
 
 // @RestController
 // @RequestMapping("/user")
@@ -42,6 +44,14 @@ public class UserController {
         return ResponseEntity.ok(students);
     }
 
+    @GetMapping("/teachers")
+    public ResponseEntity<List<User>> getTeacher() {
+
+        List<User> teachers = userRepository.findByRole(UserRole.PROFESSOR);
+
+        return ResponseEntity.ok(teachers);
+    }
+
     // GET /api/auth/users - Retorna todos os usuários
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
@@ -53,14 +63,13 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
-        if(optionalUser.isPresent()){
-             return ResponseEntity.ok(optionalUser.get());
+        if (optionalUser.isPresent()) {
+            return ResponseEntity.ok(optionalUser.get());
         } else {
-             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                     .body("Usuário não encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Usuário não encontrado.");
         }
     }
-    
 
     // PUT /api/auth/users/{id} - Atualiza um usuário específico
     @PutMapping("/{id}")
@@ -84,5 +93,3 @@ public class UserController {
     }
 
 }
-
-
