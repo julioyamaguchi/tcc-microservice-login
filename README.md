@@ -1,40 +1,69 @@
-# Projeto de Autenticação com Spring Boot
 
-## Descrição
-Este projeto implementa um sistema de autenticação utilizando Spring Boot, JWT (JSON Web Tokens) e PostgreSQL. Ele inclui um serviço básico de login e proteção de rotas com autenticação baseada em tokens.
+# Autenticação - Microserviço de Login
+
+Este repositório contém o microserviço responsável pela autenticação de usuários do Sistema de Formação e Gestão de Grupos de TCC, desenvolvido como parte do Trabalho de Conclusão de Curso de Tecnologia em Análise e Desenvolvimento de Sistemas - UFPR 2025/01.
+
+O sistema utiliza autenticação baseada em JWT (JSON Web Token) e permite o registro, login e proteção de rotas por meio de tokens.
+
+## Tecnologias Utilizadas
+
+- Java 17 + Spring Boot – Backend de autenticação
+- Spring Security – Controle de autenticação e autorização
+- JWT – Geração e validação de tokens
+- PostgreSQL – Banco de dados relacional
 
 ## Requisitos
 
-Certifique-se de ter as seguintes ferramentas instaladas no seu sistema:
-- **JDK 17** ou superior.
-- **Maven** (para gerenciar as dependências e compilar o projeto).
-- **PostgreSQL** (para o banco de dados).
+Certifique-se de ter as seguintes ferramentas instaladas:
 
-## Instalação
+- JDK 17 ou superior
+- Maven
+- PostgreSQL
 
-Siga os passos abaixo para instalar todas as dependências do projeto e configurá-lo localmente:
+## Configuração e Execução
 
-1. **Clone o repositório:**
-    ```bash
-     git clone https://github.com/julioyamaguchi/tcc-microservice-login.git
-    cd seu-repositorio
-    ```
+### 1. Clonar o repositório
 
-2. **Configure o banco de dados:**
+```
+git clone https://github.com/julioyamaguchi/tcc-microservice-login.git
+cd tcc-microservice-login
+```
 
-   Certifique-se de ter o PostgreSQL rodando e crie o banco de dados necessário.
-   O script de criação da tabela esta na pasta login
+### 2. Criar o banco de dados
 
-   No arquivo `application.properties`, configure os detalhes da conexão com o banco de dados:
+Certifique-se de que o PostgreSQL esteja em execução e crie o banco necessário:
 
-   ```properties
-   spring.datasource.url=jdbc:postgresql://localhost:5432/seu-banco
-   spring.datasource.username=seu-usuario
-   spring.datasource.password=sua-senha
-   spring.jpa.hibernate.ddl-auto=update
+```
+CREATE DATABASE seu_banco;
+```
 
-3. **Rode o projeto spring utilizando o spring boot dashboard (web2)**
-   dentro do vscode digite:
-   ctrl + alt + p
+### 3. Configurar as credenciais do banco
 
-   pesquise por: view: Show spring boot dashboard
+No arquivo `src/main/resources/application.properties`, atualize os dados de conexão:
+
+```
+spring.datasource.url=jdbc:postgresql://localhost:5432/seu_banco
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
+spring.jpa.hibernate.ddl-auto=update
+```
+
+> O script de criação da tabela pode ser encontrado no seguinte caminho `tcc-microservice-login\script_criação_tabela`.
+
+### 4. Iniciar o projeto
+
+Você pode iniciar o microserviço diretamente pela IDE utilizando o Spring Boot Dashboard.
+
+Na IDE que estiver utilizando, pressione:
+
+```
+Ctrl + Alt + P
+```
+
+E pesquise por:
+
+```
+View: Show Spring Boot Dashboard
+```
+
+A partir dessa visualização, selecione o projeto e clique em "Start".
