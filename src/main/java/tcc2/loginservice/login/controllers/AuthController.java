@@ -120,7 +120,7 @@ public class AuthController {
     if (user != null) {
       var token = tokenService.generateTokenEmail(email);
       String resetPasswordLink = "http://localhost:3030/reset-password?token=" + token;
-      emailService.enviarEmailTexto(email, "Recuperação de senha", resetPasswordLink);
+      emailService.enviarEmailTexto(email, "🏛️ ConectaTCC - Recuperação de senha", resetPasswordLink);
       return ResponseEntity.ok().build();
 
     } else {

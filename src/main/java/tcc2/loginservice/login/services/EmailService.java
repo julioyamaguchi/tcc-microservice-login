@@ -23,7 +23,21 @@ public class EmailService {
       simpleMailMessage.setFrom(remetente);
       simpleMailMessage.setTo(destinatario);
       simpleMailMessage.setSubject(assunto);
-      simpleMailMessage.setText(mensagem);
+
+      // Corpo do email
+      if (mensagem != null && mensagem.startsWith("http")) {
+        String corpoAmigavel = "Olá!\n\n"
+            + "Recebemos uma solicitação para redefinir sua senha no sistema ConectaTCC.\n"
+            + "Para redefinir sua senha, clique no link abaixo:\n\n"
+            + mensagem + "\n\n"
+            + "Se você não solicitou essa alteração, apenas ignore este e-mail.\n\n"
+            + "Atenciosamente,\nEquipe ConectaTCC";
+        simpleMailMessage.setText(corpoAmigavel);
+      } else {
+        // Qualquer outra mensagem é enviada normalmente
+        simpleMailMessage.setText(mensagem);
+      }
+
       javaMailSender.send(simpleMailMessage);
       System.out.println("Email enviado com sucesso para: " + destinatario);
     } catch (Exception e) {
@@ -31,3 +45,4 @@ public class EmailService {
     }
   }
 }
+
