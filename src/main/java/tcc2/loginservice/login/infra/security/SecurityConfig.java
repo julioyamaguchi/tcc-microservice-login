@@ -32,16 +32,16 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/users/students").authenticated()
 
-            .requestMatchers(HttpMethod.GET, "/api/auth/users").authenticated() // retrona todos os usuários
+            .requestMatchers(HttpMethod.GET, "/api/auth/users").permitAll() // retrona todos os usuários
             .requestMatchers(HttpMethod.GET, "/api/auth/users/students").authenticated() // retorna todos os alunos
             .requestMatchers(HttpMethod.GET, "/api/auth/users/teachers").authenticated() // retorna todos os alunos
-            .requestMatchers(HttpMethod.PUT, "/api/auth/users/**").authenticated() // atualiza um usuário
-            .requestMatchers(HttpMethod.DELETE, "/api/auth/users/**").authenticated() // deleta um usuário
+            .requestMatchers(HttpMethod.PUT, "/api/auth/users/**").permitAll() // atualiza um usuário
+            .requestMatchers(HttpMethod.DELETE, "/api/auth/users/**").permitAll() // deleta um usuário
             .requestMatchers(HttpMethod.POST, "/auth/forgot-password").permitAll()
             .requestMatchers(HttpMethod.POST, "api/auth/forgot-password").permitAll()
             .requestMatchers(HttpMethod.POST, "api/auth/reset-password").permitAll()
 
-            .anyRequest().authenticated())
+            .anyRequest().permitAll())
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }

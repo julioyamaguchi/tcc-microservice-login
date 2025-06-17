@@ -18,6 +18,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
   User findByNameIgnoreCase(String name);
 
+  long countByRole(UserRole role);
+
   // Consulta
   @Query("SELECT u FROM users u WHERE u.role = :role")
   List<User> findByRole(@Param("role") UserRole role);

@@ -1,6 +1,8 @@
 package tcc2.loginservice.login.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,7 +54,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser, HttpServletRequest request) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser,
+            HttpServletRequest request) {
         return userRepository.findById(id).map(user -> {
             String oldName = user.getName(); // salva o nome antigo
 
@@ -94,7 +97,6 @@ public class UserController {
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id, HttpServletRequest request) {
         return userRepository.findById(id).map(user -> {
@@ -120,5 +122,14 @@ public class UserController {
 
             return ResponseEntity.ok("Usuário deletado com sucesso.");
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado."));
+    }
+
+    @GetMapping("/count-by-role")
+    public ResponseEntity<Map<String, Long>> countByRole() {
+        Map<String, Long> response = new HashMap<>();
+        response.put("admin", userRepository.countByRole(UserRole.ADMIN));
+        response.put("student", userRepository.countByRole(UserRole.ALUNO));
+        response.put("teacher", userRepository.countByRole(UserRole.PROFESSOR));
+        return ResponseEntity.ok(response);
     }
 }
