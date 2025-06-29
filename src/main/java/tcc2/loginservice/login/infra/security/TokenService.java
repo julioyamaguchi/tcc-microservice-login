@@ -58,8 +58,7 @@ public class TokenService {
     }
   }
 
-  // validação do token quando o usuario enviar, se for valido retorna o email do
-  // cliete para qm chamou
+  // Validação do token quando o usuario enviar, se for valido retorna o email
   public String validateToken(String token) {
     try {
       Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -73,7 +72,7 @@ public class TokenService {
     }
   }
 
-  // gera um tempo de expiração para o token
+  // Gera um tempo de expiração para o token
   private Instant genereteExpirationDate() {
     return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
   }

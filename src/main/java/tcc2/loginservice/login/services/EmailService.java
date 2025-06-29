@@ -10,13 +10,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
+  // Usa o JavaMailSender do Spring Boot
+  // O método de envio é assíncrono, permitindo que o sistema não fique esperando o envio do e-mail
   @Autowired
   private JavaMailSender javaMailSender;
 
   @Value("${spring.mail.username}")
   private String remetente;
 
-  @Async // Torna o método assíncrono
+  @Async // Torna o método assíncrono (envio ocorre em uma thread separada)
   public void enviarEmailTexto(String destinatario, String assunto, String mensagem) {
     try {
       SimpleMailMessage simpleMailMessage = new SimpleMailMessage();

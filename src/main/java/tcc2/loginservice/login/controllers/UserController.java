@@ -16,6 +16,7 @@ import tcc2.loginservice.login.models.User;
 import tcc2.loginservice.login.models.UserRole;
 import tcc2.loginservice.login.repositories.UserRepository;
 
+// Controlador REST para ações sobre o usuário autenticado (consulta, edição, remoção, etc)
 @RestController
 @RequestMapping("/api/auth/users")
 public class UserController {
@@ -23,6 +24,7 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    // Lista todos os usuários com papel de aluno
     @GetMapping("/students")
     public ResponseEntity<List<User>> getStudents() {
         System.out.println("Endpoint /students acessado.");
@@ -30,18 +32,21 @@ public class UserController {
         return ResponseEntity.ok(students);
     }
 
+    // Lista todos os usuários com papel de professor
     @GetMapping("/teachers")
     public ResponseEntity<List<User>> getTeacher() {
         List<User> teachers = userRepository.findByRole(UserRole.PROFESSOR);
         return ResponseEntity.ok(teachers);
     }
 
+    // Lista todos os usuários cadastrados
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userRepository.findAll();
         return ResponseEntity.ok(users);
     }
 
+    // Busca um usuário pelo seu ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
@@ -53,6 +58,7 @@ public class UserController {
         }
     }
 
+    // Atualiza os dados de um usuário existente e sincroniza a alteração com outros microsserviços
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser,
             HttpServletRequest request) {
@@ -64,7 +70,7 @@ public class UserController {
             user.setRole(updatedUser.getRole());
             userRepository.save(user);
 
-            // Sincronizar com os outros microsserviços
+            // Sincroniza com os outros microsserviços
             RestTemplate restTemplate = new RestTemplate();
             String token = request.getHeader("Authorization");
 
@@ -72,7 +78,7 @@ public class UserController {
             headers.set("Authorization", token);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // Cria objeto DTO de sincronização
+            // Cria objeto DTO de sincronização para enviar os dados
             UserSyncDTO syncData = new UserSyncDTO();
             syncData.setId(user.getId());
             syncData.setName(user.getName());
@@ -82,9 +88,11 @@ public class UserController {
 
             HttpEntity<UserSyncDTO> entity = new HttpEntity<>(syncData, headers);
 
+            // Endereços dos endpoints dos outros microsserviços que receberão a atualização (passando pela api gateway)
             String universityUrl = "http://localhost:3000/api/university/users/sync";
             String clusteringUrl = "http://localhost:3000/api/cluster/users/sync";
 
+            // Envia a atualização para os outros microsserviços
             try {
                 restTemplate.exchange(universityUrl, HttpMethod.PUT, entity, Void.class);
                 restTemplate.exchange(clusteringUrl, HttpMethod.PUT, entity, Void.class);
@@ -97,11 +105,13 @@ public class UserController {
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    // Remove um usuário do sistema e sincroniza a exclusão com outros microsserviços
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id, HttpServletRequest request) {
         return userRepository.findById(id).map(user -> {
             userRepository.delete(user);
 
+            // Uso de RestTemplate para enviar requisições para o gateway (3000)
             RestTemplate restTemplate = new RestTemplate();
             String name = user.getName();
             String universityUrl = "http://localhost:3000/api/university/users/remove/" + id + "/" + name;
@@ -112,6 +122,7 @@ public class UserController {
             headers.set("Authorization", token);
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
+            // Envia a requisição de remoção para os outros microsserviços (os ms vão receber da api gateway)
             try {
                 restTemplate.exchange(universityUrl, HttpMethod.DELETE, entity, Void.class);
                 restTemplate.exchange(clusteringUrl, HttpMethod.DELETE, entity, Void.class);
@@ -124,6 +135,7 @@ public class UserController {
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado."));
     }
 
+    // Conta quantos usuários existem por papel (admin, aluno, professor)
     @GetMapping("/count-by-role")
     public ResponseEntity<Map<String, Long>> countByRole() {
         Map<String, Long> response = new HashMap<>();

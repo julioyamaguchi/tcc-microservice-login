@@ -32,10 +32,12 @@ import tcc2.loginservice.login.repositories.UserRepository;
 import tcc2.loginservice.login.services.EmailService;
 import tcc2.loginservice.login.services.UserService;
 
+// Controlador REST para autenticação (login, cadastro e recuperação de senha)
 @RestController
 @RequestMapping("api/auth")
 public class AuthController {
 
+  // Injeta o gerenciador de autenticação do Spring Security, e demais serviços, repositórios
   @Autowired
   private AuthenticationManager authenticationManager;
 
@@ -51,6 +53,8 @@ public class AuthController {
   @Autowired
   private EmailService emailService;
 
+  // ENDPOINT DE LOGIN
+  
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO data) {
 
@@ -80,6 +84,8 @@ public class AuthController {
     }
   }
 
+  // ENDPOINT DE CADASTRO
+
   @PostMapping("/register")
   public ResponseEntity<?> register(@RequestBody @Valid RegisterRequestDTO body) {
     if (repository.findByEmail(body.email()) != null) {
@@ -88,8 +94,7 @@ public class AuthController {
           .body(new ResponseErrorDTO(HttpStatus.BAD_REQUEST.name(), "E-mail já cadastrado."));
     }
 
-    // Verifica se o nome de usuário já está cadastrado (ignora maiúsculas,
-    // minúsculas e espaços)
+    // Verifica se o nome de usuário já está cadastrado (ignora maiúsculas, minúsculas e espaços)
     if (repository.findByNameIgnoreCase(body.name().trim()) != null) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(new ResponseErrorDTO(HttpStatus.BAD_REQUEST.name(), "Nome de usuário já cadastrado."));
@@ -112,6 +117,9 @@ public class AuthController {
     }
   }
 
+  // ENDPOINT PARA SOLICITAÇÃO DE RECUPERAÇÃO DE SENHA
+  // Envia o link seguro por e-mail
+
   @PostMapping("/forgot-password")
   public ResponseEntity<String> resetPassword(@RequestBody EmailDTO emailDTO, HttpServletRequest request) {
     String email = emailDTO.getEmail();
@@ -128,12 +136,16 @@ public class AuthController {
     }
   }
 
+  // ENDPOINT DE RECUPERAÇÃO DE SENHA USANDO O TOKEN
+  // Recebe a nova senha do usuário, confere o token, e faz a alteração
+
   @PostMapping("/reset-password")
   public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordDTO request) {
     try {
       // Verifica o token enviado
       String token = request.getToken();
-      String email = tokenService.validateToken(token); // Garante que o token é válido
+      // Garante que o token é válido
+      String email = tokenService.validateToken(token); 
 
       // Busca o usuário pelo e-mail (extraído do token)
       User user = repository.findUserByEmail(email);
@@ -149,6 +161,8 @@ public class AuthController {
       return ResponseEntity.badRequest().build(); // Token inválido ou outro erro
     }
   }
+
+  // ENDPOINT PARA RENOVAR OS TOKENS
 
   @PostMapping("/refresh-token")
   public ResponseEntity refreshToken(@RequestBody String refreshToken) {

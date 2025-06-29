@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import tcc2.loginservice.login.repositories.UserRepository;
 
+// Serviço responsável por fornecer os detalhes do usuário para o Spring Security durante o processo de autenticação
 @Service
 public class AuthorizationService implements UserDetailsService {
 

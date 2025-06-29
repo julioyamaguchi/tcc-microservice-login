@@ -18,9 +18,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity // indica a configuração manual do websecurity
 public class SecurityConfig {
 
+  // Injeta o filtro personalizado de segurança (por exemplo, filtro JWT)
   @Autowired
   SecurityFilter securityFilter;
 
+  // Define as regras de segurança HTTP da aplicação
+  // Permite acesso sem autenticação para login, registro e redefinição de senha
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
@@ -32,7 +35,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/users/students").authenticated()
 
-            .requestMatchers(HttpMethod.GET, "/api/auth/users").permitAll() // retrona todos os usuários
+            .requestMatchers(HttpMethod.GET, "/api/auth/users").permitAll() // retorna todos os usuários
             .requestMatchers(HttpMethod.GET, "/api/auth/users/students").authenticated() // retorna todos os alunos
             .requestMatchers(HttpMethod.GET, "/api/auth/users/teachers").authenticated() // retorna todos os alunos
             .requestMatchers(HttpMethod.PUT, "/api/auth/users/**").permitAll() // atualiza um usuário
@@ -46,6 +49,7 @@ public class SecurityConfig {
     return http.build();
   }
 
+  // Define o algoritmo de criptografia de senhas (BCrypt)
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();

@@ -49,7 +49,7 @@ public class User implements UserDetails {
     this.name = name;
   }
 
-  // definição das roles dos usuarios
+  // Definição das roles dos usuarios
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     switch (this.role) {

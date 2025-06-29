@@ -61,13 +61,13 @@ public class SecurityFilter extends OncePerRequestFilter {
   }
 }
 
-// O usuário faz uma requisição HTTP para um endpoint da aplicação.
-// O filtro intercepta essa requisição.
-// O filtro extrai o token JWT do cabeçalho Authorization.
-// O filtro valida o token usando o TokenService.
-// Se o token for válido, o filtro obtém os detalhes do usuário (como email e
-// roles) a partir do banco de dados.
-// O filtro cria um objeto de autenticação e o armazena no
-// SecurityContextHolder, para que outras partes da aplicação possam usar essa
-// informação (como roles para autorização).
-// A requisição continua para o endpoint desejado.
+/*
+Fluxo resumido do filtro:
+- O usuário faz uma requisição HTTP para um endpoint da aplicação.
+- O filtro intercepta essa requisição.
+- O filtro extrai o token JWT do cabeçalho Authorization.
+- O filtro valida o token usando o TokenService.
+- Se o token for válido, o filtro obtém os detalhes do usuário (como email e roles) a partir do banco de dados.
+- O filtro cria um objeto de autenticação e o armazena no SecurityContextHolder, permitindo que outras partes da aplicação acessem o usuário autenticado.
+- A requisição continua para o endpoint desejado.
+*/

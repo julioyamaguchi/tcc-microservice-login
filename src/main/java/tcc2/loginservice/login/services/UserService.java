@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import tcc2.loginservice.login.models.User;
 import tcc2.loginservice.login.repositories.UserRepository;
 
+// Serviço responsável por operações relacionadas ao usuário autenticado
 @Service
 public class UserService {
 

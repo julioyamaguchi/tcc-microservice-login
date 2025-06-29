@@ -10,7 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import tcc2.loginservice.login.models.User;
 import tcc2.loginservice.login.models.UserRole;
 
-//para o JpaRepository a entidade que ele vai manipular e o tipo do id
+// Interface de repositório para operações no banco de dados da entidade User
+// O JpaRepository já fornece métodos CRUD prontos, e os métodos abaixo são buscas personalizadas
 public interface UserRepository extends JpaRepository<User, Long> {
   UserDetails findByEmail(String email);
 
